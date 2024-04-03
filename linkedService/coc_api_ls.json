@@ -1,23 +1,19 @@
 {
-    "name": "coc_api_ls",
-    "type": "Microsoft.DataFactory/factories/linkedservices",
-    "properties": {
-        "annotations": [],
-        "type": "RestService",
-        "typeProperties": {
-            "url": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/capitalraidseasons",
-            "enableServerCertificateValidation": false,
-            "authenticationType": "Anonymous",
-            "authHeaders": {
-                "Authorization": {
-                    "type": "SecureString",
-                    "value": "**********"
-                }
-            }
-        },
-        "connectVia": {
-            "referenceName": "wag-vm-shir",
-            "type": "IntegrationRuntimeReference"
-        }
-    }
+	"name": "coc_api_ls",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/capitalraidseasons",
+			"enableServerCertificateValidation": false,
+			"authenticationType": "Anonymous",
+			"authHeaders": {
+				"Authorization": {
+					"type": "SecureString",
+					"value": "**********"
+				}
+			}
+		}
+	}
 }

@@ -1,118 +1,120 @@
 {
-    "name": "vm_start_stop",
-    "properties": {
-        "activities": [
-            {
-                "name": "get vm status",
-                "type": "WebActivity",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 0,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "userProperties": [],
-                "typeProperties": {
-                    "method": "GET",
-                    "url": "https://management.azure.com/subscriptions/e1719a45-7673-4de0-9079-8abf67c7c200/resourceGroups/p5-coc-end-to-end/providers/Microsoft.Compute/virtualMachines/wag-vm-shir/instanceView?api-version=2023-09-01",
-                    "authentication": {
-                        "type": "MSI",
-                        "resource": "https://management.azure.com/"
-                    }
-                }
-            },
-            {
-                "name": "start or stop vm",
-                "description": "If Off, Starts the VM\nIF On, Stops the VM",
-                "type": "IfCondition",
-                "dependsOn": [
-                    {
-                        "activity": "get vm status",
-                        "dependencyConditions": [
-                            "Succeeded"
-                        ]
-                    }
-                ],
-                "userProperties": [],
-                "typeProperties": {
-                    "expression": {
-                        "value": "@equals(activity('get vm status').output.statuses[1].displayStatus,'VM deallocated')",
-                        "type": "Expression"
-                    },
-                    "ifFalseActivities": [
-                        {
-                            "name": "stop and deallocate my vm",
-                            "type": "WebActivity",
-                            "dependsOn": [],
-                            "policy": {
-                                "timeout": "0.12:00:00",
-                                "retry": 0,
-                                "retryIntervalInSeconds": 30,
-                                "secureOutput": false,
-                                "secureInput": false
-                            },
-                            "userProperties": [],
-                            "typeProperties": {
-                                "method": "POST",
-                                "url": "https://management.azure.com/subscriptions/e1719a45-7673-4de0-9079-8abf67c7c200/resourceGroups/p5-coc-end-to-end/providers/Microsoft.Compute/virtualMachines/wag-vm-shir/deallocate?api-version=2023-09-01",
-                                "authentication": {
-                                    "type": "MSI",
-                                    "resource": "https://management.azure.com/"
-                                }
-                            }
-                        }
-                    ],
-                    "ifTrueActivities": [
-                        {
-                            "name": "start my vm",
-                            "type": "WebActivity",
-                            "dependsOn": [],
-                            "policy": {
-                                "timeout": "0.12:00:00",
-                                "retry": 0,
-                                "retryIntervalInSeconds": 30,
-                                "secureOutput": false,
-                                "secureInput": false
-                            },
-                            "userProperties": [],
-                            "typeProperties": {
-                                "method": "POST",
-                                "url": "https://management.azure.com/subscriptions/e1719a45-7673-4de0-9079-8abf67c7c200/resourceGroups/p5-coc-end-to-end/providers/Microsoft.Compute/virtualMachines/wag-vm-shir/start?api-version=2023-09-01",
-                                "authentication": {
-                                    "type": "MSI",
-                                    "resource": "https://management.azure.com/"
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        ],
-        "parameters": {
-            "SubscriptionId": {
-                "type": "string",
-                "defaultValue": "e1719a45-7673-4de0-9079-8abf67c7c200"
-            },
-            "ResourceGroupName": {
-                "type": "string",
-                "defaultValue": "p5-coc-end-to-end"
-            },
-            "Region": {
-                "type": "string",
-                "defaultValue": "WestEurope"
-            },
-            "VmName": {
-                "type": "string",
-                "defaultValue": "wag-vm-shir"
-            },
-            "Command": {
-                "type": "string"
-            }
-        },
-        "annotations": [],
-        "lastPublishTime": "2024-03-11T23:24:26Z"
-    },
-    "type": "Microsoft.DataFactory/factories/pipelines"
+	"name": "vm_start_stop",
+	"properties": {
+		"activities": [
+			{
+				"name": "get vm status",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://management.azure.com/subscriptions/cdeaf6c7-1fea-4d82-ad58-0b5a97a59742/resourceGroups/P5_COC/providers/Microsoft.Compute/virtualMachines/shir-vm/instanceView?api-version=2023-09-01",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://management.azure.com/"
+					}
+				}
+			},
+			{
+				"name": "start or stop vm",
+				"description": "If Off, Starts the VM\nIF On, Stops the VM",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "get vm status",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('get vm status').output.statuses[1].displayStatus,'VM deallocated')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "stop and deallocate my vm",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"url": "https://management.azure.com/subscriptions/cdeaf6c7-1fea-4d82-ad58-0b5a97a59742/resourceGroups/P5_COC/providers/Microsoft.Compute/virtualMachines/shir-vm/deallocate?api-version=2023-09-01",
+								"body": "/",
+								"authentication": {
+									"type": "MSI",
+									"resource": "https://management.azure.com/"
+								}
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "start my vm",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"url": "https://management.azure.com/subscriptions/cdeaf6c7-1fea-4d82-ad58-0b5a97a59742/resourceGroups/P5_COC/providers/Microsoft.Compute/virtualMachines/shir-vm/start?api-version=2023-09-01",
+								"body": "/",
+								"authentication": {
+									"type": "MSI",
+									"resource": "https://management.azure.com/"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"SubscriptionId": {
+				"type": "string",
+				"defaultValue": "cdeaf6c7-1fea-4d82-ad58-0b5a97a59742"
+			},
+			"ResourceGroupName": {
+				"type": "string",
+				"defaultValue": "P5_COC"
+			},
+			"Region": {
+				"type": "string",
+				"defaultValue": "WestEurope"
+			},
+			"VmName": {
+				"type": "string",
+				"defaultValue": "shir-vm"
+			},
+			"Command": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-03-11T23:24:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }
