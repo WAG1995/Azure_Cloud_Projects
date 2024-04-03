@@ -1,0 +1,9 @@
+{
+	"name": "p5-adf",
+	"location": "northeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "28e4951d-27aa-4a9d-aff4-abfad063ae47",
+		"tenantId": "5677a5c8-2771-4c9e-a697-19a89d902f6e"
+	}
+}
