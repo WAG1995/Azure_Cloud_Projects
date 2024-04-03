@@ -1,6 +1,0 @@
-selected resource name:		vm_start_stop
-selected resource type:		pipeline
-factory name:			p5-df
-factory location:		westeurope
-subscription id:		e1719a45-7673-4de0-9079-8abf67c7c200
-time of download (UTC):		Wed, 03 Apr 2024 11:18:42 GMT
