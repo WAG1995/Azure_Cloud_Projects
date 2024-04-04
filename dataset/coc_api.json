@@ -1,0 +1,13 @@
+{
+    "name": "coc_api",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "coc_api_ls",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "RestResource",
+        "schema": []
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

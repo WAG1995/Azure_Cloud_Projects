@@ -1,7 +1,7 @@
 {
-    "now": "2024-04-03T11:18:42.403Z",
-    "perfNow": 75914600.39999998,
-    "diagnosticCorrelation": "08737e55-77ce-457c-86bc-1fd096e98797",
+    "now": "2024-04-03T11:18:28.923Z",
+    "perfNow": 75901120.60000002,
+    "diagnosticCorrelation": "dbf61fce-acde-4657-a347-501f0d484a71",
     "source": "DownloadSupportFiles",
     "environment": {
         "productName": "adf",
@@ -17,7 +17,7 @@
         "loggingKey": "a2718fc1-773a-4ad4-811e-a0a4d4e583a5"
     },
     "additionalInfo": {
-        "selectedResource": "vm_start_stop",
+        "selectedResource": "p5-coc-capital-wars",
         "selectedResourceType": "pipeline"
     }
 }

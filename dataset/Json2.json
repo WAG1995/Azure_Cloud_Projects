@@ -1,0 +1,294 @@
+{
+    "name": "Json2",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "AzureDataLakeStorage1",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "Json",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": {
+                    "value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.json')",
+                    "type": "Expression"
+                },
+                "fileSystem": "silver"
+            }
+        },
+        "schema": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "state": {
+                                "type": "string"
+                            },
+                            "startTime": {
+                                "type": "string"
+                            },
+                            "endTime": {
+                                "type": "string"
+                            },
+                            "capitalTotalLoot": {
+                                "type": "integer"
+                            },
+                            "raidsCompleted": {
+                                "type": "integer"
+                            },
+                            "totalAttacks": {
+                                "type": "integer"
+                            },
+                            "enemyDistrictsDestroyed": {
+                                "type": "integer"
+                            },
+                            "offensiveReward": {
+                                "type": "integer"
+                            },
+                            "defensiveReward": {
+                                "type": "integer"
+                            },
+                            "members": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tag": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "attacks": {
+                                            "type": "integer"
+                                        },
+                                        "attackLimit": {
+                                            "type": "integer"
+                                        },
+                                        "bonusAttackLimit": {
+                                            "type": "integer"
+                                        },
+                                        "capitalResourcesLooted": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            },
+                            "attackLog": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "defender": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tag": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "level": {
+                                                    "type": "integer"
+                                                },
+                                                "badgeUrls": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "small": {
+                                                            "type": "string"
+                                                        },
+                                                        "large": {
+                                                            "type": "string"
+                                                        },
+                                                        "medium": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "attackCount": {
+                                            "type": "integer"
+                                        },
+                                        "districtCount": {
+                                            "type": "integer"
+                                        },
+                                        "districtsDestroyed": {
+                                            "type": "integer"
+                                        },
+                                        "districts": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "districtHallLevel": {
+                                                        "type": "integer"
+                                                    },
+                                                    "destructionPercent": {
+                                                        "type": "integer"
+                                                    },
+                                                    "stars": {
+                                                        "type": "integer"
+                                                    },
+                                                    "attackCount": {
+                                                        "type": "integer"
+                                                    },
+                                                    "totalLooted": {
+                                                        "type": "integer"
+                                                    },
+                                                    "attacks": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "attacker": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "tag": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "destructionPercent": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "stars": {
+                                                                    "type": "integer"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "defenseLog": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "attacker": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tag": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "level": {
+                                                    "type": "integer"
+                                                },
+                                                "badgeUrls": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "small": {
+                                                            "type": "string"
+                                                        },
+                                                        "large": {
+                                                            "type": "string"
+                                                        },
+                                                        "medium": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "attackCount": {
+                                            "type": "integer"
+                                        },
+                                        "districtCount": {
+                                            "type": "integer"
+                                        },
+                                        "districtsDestroyed": {
+                                            "type": "integer"
+                                        },
+                                        "districts": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "districtHallLevel": {
+                                                        "type": "integer"
+                                                    },
+                                                    "destructionPercent": {
+                                                        "type": "integer"
+                                                    },
+                                                    "stars": {
+                                                        "type": "integer"
+                                                    },
+                                                    "attackCount": {
+                                                        "type": "integer"
+                                                    },
+                                                    "totalLooted": {
+                                                        "type": "integer"
+                                                    },
+                                                    "attacks": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "attacker": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "tag": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "destructionPercent": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "stars": {
+                                                                    "type": "integer"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "paging": {
+                    "type": "object",
+                    "properties": {
+                        "cursors": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}
