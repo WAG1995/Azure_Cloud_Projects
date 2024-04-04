@@ -1,0 +1,789 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "p5-adf"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://p5datalake.dfs.core.windows.net/"
+		},
+		"coc_api_ls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/capitalraidseasons"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/p5-coc-capital-wars')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "fetch from coc api",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Wait1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "coc_api",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "rename and move to silver",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "fetch from coc api",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Json1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Execute vm start-stop pipeline",
+						"description": "start vm",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "vm_start_stop",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SubscriptionId": "cdeaf6c7-1fea-4d82-ad58-0b5a97a59742",
+								"ResourceGroupName": "P5_COC",
+								"Region": "WestEurope",
+								"VmName": "shir-vm"
+							}
+						}
+					},
+					{
+						"name": "Execute vm start-stop pipeline2",
+						"description": "stop vm",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "rename and move to silver",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "vm_start_stop",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Wait1",
+						"description": "5 min for the shir in vm to connect",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Execute vm start-stop pipeline",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 300
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-03-15T23:11:33Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/coc_api')]",
+				"[concat(variables('factoryId'), '/datasets/Json1')]",
+				"[concat(variables('factoryId'), '/datasets/Json2')]",
+				"[concat(variables('factoryId'), '/pipelines/vm_start_stop')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/vm_start_stop')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "get vm status",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://management.azure.com/subscriptions/cdeaf6c7-1fea-4d82-ad58-0b5a97a59742/resourceGroups/P5_COC/providers/Microsoft.Compute/virtualMachines/shir-vm/instanceView?api-version=2023-09-01",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.azure.com/"
+							}
+						}
+					},
+					{
+						"name": "start or stop vm",
+						"description": "If Off, Starts the VM\nIF On, Stops the VM",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "get vm status",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(activity('get vm status').output.statuses[1].displayStatus,'VM deallocated')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "stop and deallocate my vm",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "POST",
+										"headers": {},
+										"url": "https://management.azure.com/subscriptions/cdeaf6c7-1fea-4d82-ad58-0b5a97a59742/resourceGroups/P5_COC/providers/Microsoft.Compute/virtualMachines/shir-vm/deallocate?api-version=2023-09-01",
+										"body": "/",
+										"authentication": {
+											"type": "MSI",
+											"resource": "https://management.azure.com/"
+										}
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "start my vm",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "POST",
+										"headers": {},
+										"url": "https://management.azure.com/subscriptions/cdeaf6c7-1fea-4d82-ad58-0b5a97a59742/resourceGroups/P5_COC/providers/Microsoft.Compute/virtualMachines/shir-vm/start?api-version=2023-09-01",
+										"body": "/",
+										"authentication": {
+											"type": "MSI",
+											"resource": "https://management.azure.com/"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SubscriptionId": {
+						"type": "string",
+						"defaultValue": "cdeaf6c7-1fea-4d82-ad58-0b5a97a59742"
+					},
+					"ResourceGroupName": {
+						"type": "string",
+						"defaultValue": "P5_COC"
+					},
+					"Region": {
+						"type": "string",
+						"defaultValue": "WestEurope"
+					},
+					"VmName": {
+						"type": "string",
+						"defaultValue": "shir-vm"
+					},
+					"Command": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-03-11T23:24:26Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "raw.json",
+						"fileSystem": "bronze"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.json')",
+							"type": "Expression"
+						},
+						"fileSystem": "silver"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"state": {
+										"type": "string"
+									},
+									"startTime": {
+										"type": "string"
+									},
+									"endTime": {
+										"type": "string"
+									},
+									"capitalTotalLoot": {
+										"type": "integer"
+									},
+									"raidsCompleted": {
+										"type": "integer"
+									},
+									"totalAttacks": {
+										"type": "integer"
+									},
+									"enemyDistrictsDestroyed": {
+										"type": "integer"
+									},
+									"offensiveReward": {
+										"type": "integer"
+									},
+									"defensiveReward": {
+										"type": "integer"
+									},
+									"members": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"tag": {
+													"type": "string"
+												},
+												"name": {
+													"type": "string"
+												},
+												"attacks": {
+													"type": "integer"
+												},
+												"attackLimit": {
+													"type": "integer"
+												},
+												"bonusAttackLimit": {
+													"type": "integer"
+												},
+												"capitalResourcesLooted": {
+													"type": "integer"
+												}
+											}
+										}
+									},
+									"attackLog": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"defender": {
+													"type": "object",
+													"properties": {
+														"tag": {
+															"type": "string"
+														},
+														"name": {
+															"type": "string"
+														},
+														"level": {
+															"type": "integer"
+														},
+														"badgeUrls": {
+															"type": "object",
+															"properties": {
+																"small": {
+																	"type": "string"
+																},
+																"large": {
+																	"type": "string"
+																},
+																"medium": {
+																	"type": "string"
+																}
+															}
+														}
+													}
+												},
+												"attackCount": {
+													"type": "integer"
+												},
+												"districtCount": {
+													"type": "integer"
+												},
+												"districtsDestroyed": {
+													"type": "integer"
+												},
+												"districts": {
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"districtHallLevel": {
+																"type": "integer"
+															},
+															"destructionPercent": {
+																"type": "integer"
+															},
+															"stars": {
+																"type": "integer"
+															},
+															"attackCount": {
+																"type": "integer"
+															},
+															"totalLooted": {
+																"type": "integer"
+															},
+															"attacks": {
+																"type": "array",
+																"items": {
+																	"type": "object",
+																	"properties": {
+																		"attacker": {
+																			"type": "object",
+																			"properties": {
+																				"tag": {
+																					"type": "string"
+																				},
+																				"name": {
+																					"type": "string"
+																				}
+																			}
+																		},
+																		"destructionPercent": {
+																			"type": "integer"
+																		},
+																		"stars": {
+																			"type": "integer"
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									},
+									"defenseLog": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"attacker": {
+													"type": "object",
+													"properties": {
+														"tag": {
+															"type": "string"
+														},
+														"name": {
+															"type": "string"
+														},
+														"level": {
+															"type": "integer"
+														},
+														"badgeUrls": {
+															"type": "object",
+															"properties": {
+																"small": {
+																	"type": "string"
+																},
+																"large": {
+																	"type": "string"
+																},
+																"medium": {
+																	"type": "string"
+																}
+															}
+														}
+													}
+												},
+												"attackCount": {
+													"type": "integer"
+												},
+												"districtCount": {
+													"type": "integer"
+												},
+												"districtsDestroyed": {
+													"type": "integer"
+												},
+												"districts": {
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"districtHallLevel": {
+																"type": "integer"
+															},
+															"destructionPercent": {
+																"type": "integer"
+															},
+															"stars": {
+																"type": "integer"
+															},
+															"attackCount": {
+																"type": "integer"
+															},
+															"totalLooted": {
+																"type": "integer"
+															},
+															"attacks": {
+																"type": "array",
+																"items": {
+																	"type": "object",
+																	"properties": {
+																		"attacker": {
+																			"type": "object",
+																			"properties": {
+																				"tag": {
+																					"type": "string"
+																				},
+																				"name": {
+																					"type": "string"
+																				}
+																			}
+																		},
+																		"destructionPercent": {
+																			"type": "integer"
+																		},
+																		"stars": {
+																			"type": "integer"
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						},
+						"paging": {
+							"type": "object",
+							"properties": {
+								"cursors": {
+									"type": "object"
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/coc_api')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "coc_api_ls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/coc_api_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/coc_api_ls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('coc_api_ls_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": false,
+					"authenticationType": "Anonymous",
+					"authHeaders": {
+						"Authorization": {
+							"type": "SecureString",
+							"value": "**********"
+						}
+					}
+				},
+				"connectVia": {
+					"referenceName": "wag-vm-shir",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/wag-vm-shir')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/weekly_mon')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "get capital wars details",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "p5-coc-capital-wars",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Week",
+						"interval": 1,
+						"startTime": "2024-03-27T18:00:00",
+						"timeZone": "GMT Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								18
+							],
+							"weekDays": [
+								"Monday"
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/p5-coc-capital-wars')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wag-vm-shir')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		}
+	]
+}

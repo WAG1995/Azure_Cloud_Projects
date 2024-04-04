@@ -1,0 +1,18 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "p5-adf"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://p5datalake.dfs.core.windows.net/"
+		},
+		"coc_api_ls_properties_typeProperties_url": {
+			"value": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/capitalraidseasons"
+		}
+	}
+}
