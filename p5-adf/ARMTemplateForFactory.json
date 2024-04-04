@@ -94,7 +94,7 @@
 						]
 					},
 					{
-						"name": "rename and move to silver",
+						"name": "rename and bronze to silver",
 						"type": "Copy",
 						"dependsOn": [
 							{
@@ -179,7 +179,7 @@
 						"type": "ExecutePipeline",
 						"dependsOn": [
 							{
-								"activity": "rename and move to silver",
+								"activity": "rename and bronze to silver",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -214,6 +214,33 @@
 						"typeProperties": {
 							"waitTimeInSeconds": 300
 						}
+					},
+					{
+						"name": "bronze to gold",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "rename and bronze to silver",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Shared/p5-bronze_to_gold"
+						},
+						"linkedServiceName": {
+							"referenceName": "p5_coc_databrick_ls",
+							"type": "LinkedServiceReference"
+						}
 					}
 				],
 				"policy": {
@@ -226,7 +253,8 @@
 				"[concat(variables('factoryId'), '/datasets/coc_api')]",
 				"[concat(variables('factoryId'), '/datasets/Json1')]",
 				"[concat(variables('factoryId'), '/datasets/Json2')]",
-				"[concat(variables('factoryId'), '/pipelines/vm_start_stop')]"
+				"[concat(variables('factoryId'), '/pipelines/vm_start_stop')]",
+				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]"
 			]
 		},
 		{
@@ -236,7 +264,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "silver to gold",
+						"name": "bronze to gold",
 						"type": "DatabricksNotebook",
 						"dependsOn": [],
 						"policy": {
@@ -248,7 +276,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Shared/p5-silver_to_gold"
+							"notebookPath": "/Shared/p5-bronze_to_gold"
 						},
 						"linkedServiceName": {
 							"referenceName": "p5_coc_databrick_ls",
