@@ -283,6 +283,10 @@
 							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.json')",
 							"type": "Expression"
 						},
+						"folderPath": {
+							"value": "@formatDateTime(utcNow(), 'dd-MM-yyyy')",
+							"type": "Expression"
+						},
 						"fileSystem": "silver"
 					}
 				},
