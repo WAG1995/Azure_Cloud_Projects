@@ -56,7 +56,7 @@
 				]
 			},
 			{
-				"name": "rename and move to silver",
+				"name": "rename and bronze to silver",
 				"type": "Copy",
 				"dependsOn": [
 					{
@@ -139,7 +139,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "rename and move to silver",
+						"activity": "rename and bronze to silver",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -172,6 +172,33 @@
 				"userProperties": [],
 				"typeProperties": {
 					"waitTimeInSeconds": 300
+				}
+			},
+			{
+				"name": "bronze to gold",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "rename and bronze to silver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/p5-bronze_to_gold"
+				},
+				"linkedServiceName": {
+					"referenceName": "p5_coc_databrick_ls",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
