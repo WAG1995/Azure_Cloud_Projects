@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "silver to gold",
+				"name": "bronze to gold",
 				"type": "DatabricksNotebook",
 				"dependsOn": [],
 				"policy": {
@@ -15,7 +15,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Shared/p5-silver_to_gold"
+					"notebookPath": "/Shared/p5-bronze_to_gold"
 				},
 				"linkedServiceName": {
 					"referenceName": "p5_coc_databrick_ls",
