@@ -3,7 +3,7 @@
 	"properties": {
 		"description": "get capital wars details",
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {
@@ -17,7 +17,7 @@
 			"recurrence": {
 				"frequency": "Week",
 				"interval": 1,
-				"startTime": "2024-03-10T18:00:00",
+				"startTime": "2024-03-27T18:00:00",
 				"timeZone": "GMT Standard Time",
 				"schedule": {
 					"minutes": [
@@ -27,7 +27,7 @@
 						18
 					],
 					"weekDays": [
-						"Wednesday"
+						"Monday"
 					]
 				}
 			}
