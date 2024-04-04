@@ -15,6 +15,10 @@
 			"type": "string",
 			"defaultValue": "https://p5datalake.dfs.core.windows.net/"
 		},
+		"p5_coc_databrick_ls_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0404-102052-2q1qt7jj"
+		},
 		"coc_api_ls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/capitalraidseasons"
@@ -176,6 +180,22 @@
 			"properties": {
 				"type": "SelfHosted",
 				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/p5_coc_databrick_ls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-5969410575803684.4.azuredatabricks.net",
+					"authentication": "MSI",
+					"workspaceResourceId": "/subscriptions/cdeaf6c7-1fea-4d82-ad58-0b5a97a59742/resourceGroups/p5_coc/providers/Microsoft.Databricks/workspaces/p5_databricks",
+					"existingClusterId": "[parameters('p5_coc_databrick_ls_properties_typeProperties_existingClusterId')]"
+				}
 			},
 			"dependsOn": []
 		},

@@ -13,6 +13,9 @@
 		},
 		"coc_api_ls_properties_typeProperties_url": {
 			"value": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/capitalraidseasons"
+		},
+		"p5_coc_databrick_ls_properties_typeProperties_existingClusterId": {
+			"value": "0404-102052-2q1qt7jj"
 		}
 	}
 }
