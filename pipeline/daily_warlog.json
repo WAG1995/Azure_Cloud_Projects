@@ -140,7 +140,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Shared/p5-bronze_to_gold"
+					"notebookPath": "/Shared/p5-dailyWar-bronze-to-gold"
 				},
 				"linkedServiceName": {
 					"referenceName": "p5_coc_databrick_ls",
