@@ -1,0 +1,12 @@
+{
+	"name": "dailyWars_dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dailyWars_ls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
