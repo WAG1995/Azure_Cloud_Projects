@@ -5,6 +5,8 @@
 			{
 				"name": "fetch from coc api",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Wait1",
@@ -105,7 +107,14 @@
 				"type": "ExecutePipeline",
 				"state": "Inactive",
 				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "dailyWar bronze to gold",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
