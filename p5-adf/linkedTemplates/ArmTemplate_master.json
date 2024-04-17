@@ -27,6 +27,10 @@
 			"type": "string",
 			"defaultValue": "0404-102052-2q1qt7jj"
 		},
+		"dailyWars_ls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/currentwar"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -68,6 +72,9 @@
 					},
 					"coc_api_ls_properties_typeProperties_url": {
 						"value": "[parameters('coc_api_ls_properties_typeProperties_url')]"
+					},
+					"dailyWars_ls_properties_typeProperties_url": {
+						"value": "[parameters('dailyWars_ls_properties_typeProperties_url')]"
 					}
 				}
 			},
