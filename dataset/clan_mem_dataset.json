@@ -1,0 +1,12 @@
+{
+	"name": "clan_mem_dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "clan_mem_ls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
