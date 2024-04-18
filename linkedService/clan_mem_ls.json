@@ -1,0 +1,20 @@
+{
+	"name": "clan_mem_ls",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "clan members data",
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/members",
+			"enableServerCertificateValidation": false,
+			"authenticationType": "Anonymous",
+			"authHeaders": {
+				"Authorization": {
+					"type": "SecureString",
+					"value": "**********"
+				}
+			}
+		}
+	}
+}
