@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "fetch from coc api",
+				"name": "fetch capital war data from coc api",
 				"type": "Copy",
 				"dependsOn": [
 					{
@@ -56,11 +56,11 @@
 				]
 			},
 			{
-				"name": "rename and bronze to silver",
+				"name": "rename capital data and bronze to silver",
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "fetch from coc api",
+						"activity": "fetch capital war data from coc api",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -139,7 +139,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "rename and bronze to silver",
+						"activity": "fetch clan members data",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -179,7 +179,7 @@
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
-						"activity": "rename and bronze to silver",
+						"activity": "rename clan mem data and bronze to silver",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -200,6 +200,114 @@
 					"referenceName": "p5_coc_databrick_ls",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "fetch clan members data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "rename capital data and bronze to silver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "clan_mem_dataset",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "clan_members_dataSink",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "rename clan mem data and bronze to silver",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "fetch clan members data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "clan_members_dataSink",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "clan_mem_bronze_to_silver_dataSink",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": [],
