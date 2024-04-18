@@ -19,17 +19,21 @@
 			"type": "string",
 			"defaultValue": "https://p5datalake.dfs.core.windows.net/"
 		},
+		"clan_mem_ls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/members"
+		},
 		"coc_api_ls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/capitalraidseasons"
 		},
-		"p5_coc_databrick_ls_properties_typeProperties_existingClusterId": {
-			"type": "string",
-			"defaultValue": "0404-102052-2q1qt7jj"
-		},
 		"dailyWars_ls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/currentwar"
+		},
+		"p5_coc_databrick_ls_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0404-102052-2q1qt7jj"
 		},
 		"containerUri": {
 			"type": "string",
@@ -69,6 +73,9 @@
 					},
 					"p5_coc_databrick_ls_properties_typeProperties_existingClusterId": {
 						"value": "[parameters('p5_coc_databrick_ls_properties_typeProperties_existingClusterId')]"
+					},
+					"clan_mem_ls_properties_typeProperties_url": {
+						"value": "[parameters('clan_mem_ls_properties_typeProperties_url')]"
 					},
 					"coc_api_ls_properties_typeProperties_url": {
 						"value": "[parameters('coc_api_ls_properties_typeProperties_url')]"

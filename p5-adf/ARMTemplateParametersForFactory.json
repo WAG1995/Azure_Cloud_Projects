@@ -14,14 +14,17 @@
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"value": "https://p5datalake.dfs.core.windows.net/"
 		},
+		"clan_mem_ls_properties_typeProperties_url": {
+			"value": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/members"
+		},
 		"coc_api_ls_properties_typeProperties_url": {
 			"value": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/capitalraidseasons"
 		},
-		"p5_coc_databrick_ls_properties_typeProperties_existingClusterId": {
-			"value": "0404-102052-2q1qt7jj"
-		},
 		"dailyWars_ls_properties_typeProperties_url": {
 			"value": "https://api.clashofclans.com/v1/clans/%232LRYP09Q/currentwar"
+		},
+		"p5_coc_databrick_ls_properties_typeProperties_existingClusterId": {
+			"value": "0404-102052-2q1qt7jj"
 		}
 	}
 }
