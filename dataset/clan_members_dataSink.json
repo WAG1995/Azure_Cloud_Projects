@@ -10,15 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": {
-					"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-memb.json')",
-					"type": "Expression"
-				},
-				"folderPath": {
-					"value": "@formatDateTime(utcNow(), 'dd-MM-yyyy')",
-					"type": "Expression"
-				},
-				"fileSystem": "silver"
+				"fileName": "clan_members_raw.json",
+				"fileSystem": "bronze"
 			}
 		},
 		"schema": {}
