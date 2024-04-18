@@ -114,8 +114,6 @@
 				"name": "Execute vm start-stop pipeline",
 				"description": "start vm",
 				"type": "ExecutePipeline",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"secureInput": false
@@ -163,8 +161,6 @@
 				"name": "Wait1",
 				"description": "5 min for the shir in vm to connect",
 				"type": "Wait",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Execute vm start-stop pipeline",
@@ -181,8 +177,6 @@
 			{
 				"name": "bronze to gold",
 				"type": "DatabricksNotebook",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "rename clan mem data and bronze to silver",
