@@ -56,7 +56,7 @@
 				]
 			},
 			{
-				"name": "rename capital data and bronze to silver",
+				"name": "capital data bronze to silver",
 				"type": "Copy",
 				"dependsOn": [
 					{
@@ -179,7 +179,7 @@
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
-						"activity": "rename clan mem data and bronze to silver",
+						"activity": "clan mem data bronze to silver",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -206,7 +206,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "rename capital data and bronze to silver",
+						"activity": "capital data bronze to silver",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -255,7 +255,7 @@
 				]
 			},
 			{
-				"name": "rename clan mem data and bronze to silver",
+				"name": "clan mem data bronze to silver",
 				"type": "Copy",
 				"dependsOn": [
 					{
