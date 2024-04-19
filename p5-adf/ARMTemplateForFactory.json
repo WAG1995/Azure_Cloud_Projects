@@ -49,8 +49,6 @@
 					{
 						"name": "fetch from coc api",
 						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Wait1",
@@ -107,8 +105,6 @@
 						"name": "Execute vm start-stop pipeline",
 						"description": "start vm",
 						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"secureInput": false
@@ -132,8 +128,6 @@
 						"name": "Wait1",
 						"description": "5 min for the shir in vm to connect",
 						"type": "Wait",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Execute vm start-stop pipeline",
@@ -151,8 +145,6 @@
 						"name": "Execute vm start-stop pipeline2",
 						"description": "stop vm",
 						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "dailyWar bronze to gold",
