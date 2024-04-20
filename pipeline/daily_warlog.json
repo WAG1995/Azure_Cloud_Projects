@@ -101,7 +101,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "dailyWar bronze to gold",
+						"activity": "fetch clan members data",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -122,11 +122,9 @@
 			{
 				"name": "dailyWar bronze to gold",
 				"type": "DatabricksNotebook",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
-						"activity": "rename and bronze to silver",
+						"activity": "clan mem data bronze to silver",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -199,6 +197,114 @@
 				"outputs": [
 					{
 						"referenceName": "dailyWarlog_silver_dataSink",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "fetch clan members data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "rename and bronze to silver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "clan_mem_dataset",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "dailywar_clanmembers_datasink",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "clan mem data bronze to silver",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "fetch clan members data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "dailywar_clanmembers_datasink",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
 						"type": "DatasetReference"
 					}
 				]
