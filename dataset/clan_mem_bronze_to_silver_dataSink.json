@@ -11,14 +11,14 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": {
-					"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-members.json')",
+					"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-clanMembers.json')",
 					"type": "Expression"
 				},
 				"folderPath": {
 					"value": "@formatDateTime(utcNow(), 'dd-MM-yyyy')",
 					"type": "Expression"
 				},
-				"fileSystem": "silver"
+				"fileSystem": "dailywar-silver"
 			}
 		},
 		"schema": {}
