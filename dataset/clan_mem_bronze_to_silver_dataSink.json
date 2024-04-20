@@ -18,7 +18,7 @@
 					"value": "@formatDateTime(utcNow(), 'dd-MM-yyyy')",
 					"type": "Expression"
 				},
-				"fileSystem": "dailywar-silver"
+				"fileSystem": "silver"
 			}
 		},
 		"schema": {}
