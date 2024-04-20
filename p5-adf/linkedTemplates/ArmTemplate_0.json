@@ -214,42 +214,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/test_databricks')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "bronze to gold",
-						"type": "DatabricksNotebook",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"notebookPath": "/Shared/p5-bronze_to_gold"
-						},
-						"linkedServiceName": {
-							"referenceName": "p5_coc_databrick_ls",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Json1')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -590,7 +554,7 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": {
-							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-members.json')",
+							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-clanMembers.json')",
 							"type": "Expression"
 						},
 						"folderPath": {
@@ -687,6 +651,301 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dailywar_clanmember_bronz_to_dailywar_silver')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-clanMembers.json')",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@formatDateTime(utcNow(), 'dd-MM-yyyy')",
+							"type": "Expression"
+						},
+						"fileSystem": "dailywar-silver"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"state": {
+							"type": "string"
+						},
+						"teamSize": {
+							"type": "integer"
+						},
+						"attacksPerMember": {
+							"type": "integer"
+						},
+						"preparationStartTime": {
+							"type": "string"
+						},
+						"startTime": {
+							"type": "string"
+						},
+						"endTime": {
+							"type": "string"
+						},
+						"clan": {
+							"type": "object",
+							"properties": {
+								"tag": {
+									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"badgeUrls": {
+									"type": "object",
+									"properties": {
+										"small": {
+											"type": "string"
+										},
+										"large": {
+											"type": "string"
+										},
+										"medium": {
+											"type": "string"
+										}
+									}
+								},
+								"clanLevel": {
+									"type": "integer"
+								},
+								"attacks": {
+									"type": "integer"
+								},
+								"stars": {
+									"type": "integer"
+								},
+								"destructionPercentage": {
+									"type": "number"
+								},
+								"members": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"tag": {
+												"type": "string"
+											},
+											"name": {
+												"type": "string"
+											},
+											"townhallLevel": {
+												"type": "integer"
+											},
+											"mapPosition": {
+												"type": "integer"
+											},
+											"attacks": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"attackerTag": {
+															"type": "string"
+														},
+														"defenderTag": {
+															"type": "string"
+														},
+														"stars": {
+															"type": "integer"
+														},
+														"destructionPercentage": {
+															"type": "integer"
+														},
+														"order": {
+															"type": "integer"
+														},
+														"duration": {
+															"type": "integer"
+														}
+													}
+												}
+											},
+											"opponentAttacks": {
+												"type": "integer"
+											},
+											"bestOpponentAttack": {
+												"type": "object",
+												"properties": {
+													"attackerTag": {
+														"type": "string"
+													},
+													"defenderTag": {
+														"type": "string"
+													},
+													"stars": {
+														"type": "integer"
+													},
+													"destructionPercentage": {
+														"type": "integer"
+													},
+													"order": {
+														"type": "integer"
+													},
+													"duration": {
+														"type": "integer"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						},
+						"opponent": {
+							"type": "object",
+							"properties": {
+								"tag": {
+									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"badgeUrls": {
+									"type": "object",
+									"properties": {
+										"small": {
+											"type": "string"
+										},
+										"large": {
+											"type": "string"
+										},
+										"medium": {
+											"type": "string"
+										}
+									}
+								},
+								"clanLevel": {
+									"type": "integer"
+								},
+								"attacks": {
+									"type": "integer"
+								},
+								"stars": {
+									"type": "integer"
+								},
+								"destructionPercentage": {
+									"type": "number"
+								},
+								"members": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"tag": {
+												"type": "string"
+											},
+											"name": {
+												"type": "string"
+											},
+											"townhallLevel": {
+												"type": "integer"
+											},
+											"mapPosition": {
+												"type": "integer"
+											},
+											"attacks": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"attackerTag": {
+															"type": "string"
+														},
+														"defenderTag": {
+															"type": "string"
+														},
+														"stars": {
+															"type": "integer"
+														},
+														"destructionPercentage": {
+															"type": "integer"
+														},
+														"order": {
+															"type": "integer"
+														},
+														"duration": {
+															"type": "integer"
+														}
+													}
+												}
+											},
+											"opponentAttacks": {
+												"type": "integer"
+											},
+											"bestOpponentAttack": {
+												"type": "object",
+												"properties": {
+													"attackerTag": {
+														"type": "string"
+													},
+													"defenderTag": {
+														"type": "string"
+													},
+													"stars": {
+														"type": "integer"
+													},
+													"destructionPercentage": {
+														"type": "integer"
+													},
+													"order": {
+														"type": "integer"
+													},
+													"duration": {
+														"type": "integer"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dailywar_clanmembers_datasink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "clan_members_raw.json",
+						"fileSystem": "bronze"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/clan_mem_ls')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -766,6 +1025,96 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/wag-vm-shir')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/test_databricks')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bronze to gold",
+						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Shared/p5-bronze_to_gold"
+						},
+						"linkedServiceName": {
+							"referenceName": "p5_coc_databrick_ls",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "clan mem data bronze to silver",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "dailywar_clanmembers_datasink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]",
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmembers_datasink')]",
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]"
 			]
 		},
 		{
@@ -929,7 +1278,7 @@
 						"type": "ExecutePipeline",
 						"dependsOn": [
 							{
-								"activity": "dailyWar bronze to gold",
+								"activity": "fetch clan members data",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -951,11 +1300,9 @@
 					{
 						"name": "dailyWar bronze to gold",
 						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
-								"activity": "rename and bronze to silver",
+								"activity": "clan mem data bronze to silver",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1033,237 +1380,13 @@
 								"parameters": {}
 							}
 						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/dailyWars_dataset')]",
-				"[concat(variables('factoryId'), '/datasets/dailyWars_dataSink')]",
-				"[concat(variables('factoryId'), '/pipelines/vm_start_stop')]",
-				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]",
-				"[concat(variables('factoryId'), '/datasets/dailyWarlog_silver_dataSink')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/p5-coc-capital-wars')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "fetch capital war data from coc api",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Wait1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "coc_api",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Json1",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "capital data bronze to silver",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "fetch capital war data from coc api",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "Json1",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Json2",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "Execute vm start-stop pipeline",
-						"description": "start vm",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "vm_start_stop",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"SubscriptionId": "cdeaf6c7-1fea-4d82-ad58-0b5a97a59742",
-								"ResourceGroupName": "P5_COC",
-								"Region": "WestEurope",
-								"VmName": "shir-vm"
-							}
-						}
-					},
-					{
-						"name": "Execute vm start-stop pipeline2",
-						"description": "stop vm",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "fetch clan members data",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "vm_start_stop",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Wait1",
-						"description": "5 min for the shir in vm to connect",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "Execute vm start-stop pipeline",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 300
-						}
-					},
-					{
-						"name": "bronze to gold",
-						"type": "DatabricksNotebook",
-						"dependsOn": [
-							{
-								"activity": "clan mem data bronze to silver",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"notebookPath": "/Shared/p5-bronze_to_gold"
-						},
-						"linkedServiceName": {
-							"referenceName": "p5_coc_databrick_ls",
-							"type": "LinkedServiceReference"
-						}
 					},
 					{
 						"name": "fetch clan members data",
 						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "capital data bronze to silver",
+								"activity": "rename and bronze to silver",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1307,7 +1430,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "clan_members_dataSink",
+								"referenceName": "dailywar_clanmembers_datasink",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -1357,14 +1480,14 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "clan_members_dataSink",
+								"referenceName": "dailywar_clanmembers_datasink",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "clan_mem_bronze_to_silver_dataSink",
+								"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -1374,60 +1497,17 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"annotations": [],
-				"lastPublishTime": "2024-03-15T23:11:33Z"
+				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/coc_api')]",
-				"[concat(variables('factoryId'), '/datasets/Json1')]",
-				"[concat(variables('factoryId'), '/datasets/Json2')]",
+				"[concat(variables('factoryId'), '/datasets/dailyWars_dataset')]",
+				"[concat(variables('factoryId'), '/datasets/dailyWars_dataSink')]",
 				"[concat(variables('factoryId'), '/pipelines/vm_start_stop')]",
 				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]",
+				"[concat(variables('factoryId'), '/datasets/dailyWarlog_silver_dataSink')]",
 				"[concat(variables('factoryId'), '/datasets/clan_mem_dataset')]",
-				"[concat(variables('factoryId'), '/datasets/clan_members_dataSink')]",
-				"[concat(variables('factoryId'), '/datasets/clan_mem_bronze_to_silver_dataSink')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/weekly_mon')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "get capital wars details",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "p5-coc-capital-wars",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Week",
-						"interval": 1,
-						"startTime": "2024-03-27T18:00:00",
-						"timeZone": "GMT Standard Time",
-						"schedule": {
-							"minutes": [
-								0
-							],
-							"hours": [
-								18
-							],
-							"weekDays": [
-								"Monday"
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/p5-coc-capital-wars')]"
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmembers_datasink')]",
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]"
 			]
 		}
 	]

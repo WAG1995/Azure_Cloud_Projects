@@ -147,7 +147,7 @@
 						"type": "ExecutePipeline",
 						"dependsOn": [
 							{
-								"activity": "dailyWar bronze to gold",
+								"activity": "fetch clan members data",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -169,11 +169,9 @@
 					{
 						"name": "dailyWar bronze to gold",
 						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
-								"activity": "rename and bronze to silver",
+								"activity": "clan mem data bronze to silver",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -251,6 +249,118 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "fetch clan members data",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "rename and bronze to silver",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "clan_mem_dataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "dailywar_clanmembers_datasink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "clan mem data bronze to silver",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "fetch clan members data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "dailywar_clanmembers_datasink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -263,7 +373,10 @@
 				"[concat(variables('factoryId'), '/datasets/dailyWars_dataSink')]",
 				"[concat(variables('factoryId'), '/pipelines/vm_start_stop')]",
 				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]",
-				"[concat(variables('factoryId'), '/datasets/dailyWarlog_silver_dataSink')]"
+				"[concat(variables('factoryId'), '/datasets/dailyWarlog_silver_dataSink')]",
+				"[concat(variables('factoryId'), '/datasets/clan_mem_dataset')]",
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmembers_datasink')]",
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]"
 			]
 		},
 		{
@@ -615,6 +728,8 @@
 					{
 						"name": "bronze to gold",
 						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -631,6 +746,56 @@
 							"referenceName": "p5_coc_databrick_ls",
 							"type": "LinkedServiceReference"
 						}
+					},
+					{
+						"name": "clan mem data bronze to silver",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "dailywar_clanmembers_datasink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -639,7 +804,9 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]"
+				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]",
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmembers_datasink')]",
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]"
 			]
 		},
 		{
@@ -1111,7 +1278,7 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": {
-							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-members.json')",
+							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-clanMembers.json')",
 							"type": "Expression"
 						},
 						"folderPath": {
@@ -1259,6 +1426,301 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/dailyWars_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dailywar_clanmember_bronz_to_dailywar_silver')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-clanMembers.json')",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@formatDateTime(utcNow(), 'dd-MM-yyyy')",
+							"type": "Expression"
+						},
+						"fileSystem": "dailywar-silver"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"state": {
+							"type": "string"
+						},
+						"teamSize": {
+							"type": "integer"
+						},
+						"attacksPerMember": {
+							"type": "integer"
+						},
+						"preparationStartTime": {
+							"type": "string"
+						},
+						"startTime": {
+							"type": "string"
+						},
+						"endTime": {
+							"type": "string"
+						},
+						"clan": {
+							"type": "object",
+							"properties": {
+								"tag": {
+									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"badgeUrls": {
+									"type": "object",
+									"properties": {
+										"small": {
+											"type": "string"
+										},
+										"large": {
+											"type": "string"
+										},
+										"medium": {
+											"type": "string"
+										}
+									}
+								},
+								"clanLevel": {
+									"type": "integer"
+								},
+								"attacks": {
+									"type": "integer"
+								},
+								"stars": {
+									"type": "integer"
+								},
+								"destructionPercentage": {
+									"type": "number"
+								},
+								"members": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"tag": {
+												"type": "string"
+											},
+											"name": {
+												"type": "string"
+											},
+											"townhallLevel": {
+												"type": "integer"
+											},
+											"mapPosition": {
+												"type": "integer"
+											},
+											"attacks": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"attackerTag": {
+															"type": "string"
+														},
+														"defenderTag": {
+															"type": "string"
+														},
+														"stars": {
+															"type": "integer"
+														},
+														"destructionPercentage": {
+															"type": "integer"
+														},
+														"order": {
+															"type": "integer"
+														},
+														"duration": {
+															"type": "integer"
+														}
+													}
+												}
+											},
+											"opponentAttacks": {
+												"type": "integer"
+											},
+											"bestOpponentAttack": {
+												"type": "object",
+												"properties": {
+													"attackerTag": {
+														"type": "string"
+													},
+													"defenderTag": {
+														"type": "string"
+													},
+													"stars": {
+														"type": "integer"
+													},
+													"destructionPercentage": {
+														"type": "integer"
+													},
+													"order": {
+														"type": "integer"
+													},
+													"duration": {
+														"type": "integer"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						},
+						"opponent": {
+							"type": "object",
+							"properties": {
+								"tag": {
+									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"badgeUrls": {
+									"type": "object",
+									"properties": {
+										"small": {
+											"type": "string"
+										},
+										"large": {
+											"type": "string"
+										},
+										"medium": {
+											"type": "string"
+										}
+									}
+								},
+								"clanLevel": {
+									"type": "integer"
+								},
+								"attacks": {
+									"type": "integer"
+								},
+								"stars": {
+									"type": "integer"
+								},
+								"destructionPercentage": {
+									"type": "number"
+								},
+								"members": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"tag": {
+												"type": "string"
+											},
+											"name": {
+												"type": "string"
+											},
+											"townhallLevel": {
+												"type": "integer"
+											},
+											"mapPosition": {
+												"type": "integer"
+											},
+											"attacks": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"attackerTag": {
+															"type": "string"
+														},
+														"defenderTag": {
+															"type": "string"
+														},
+														"stars": {
+															"type": "integer"
+														},
+														"destructionPercentage": {
+															"type": "integer"
+														},
+														"order": {
+															"type": "integer"
+														},
+														"duration": {
+															"type": "integer"
+														}
+													}
+												}
+											},
+											"opponentAttacks": {
+												"type": "integer"
+											},
+											"bestOpponentAttack": {
+												"type": "object",
+												"properties": {
+													"attackerTag": {
+														"type": "string"
+													},
+													"defenderTag": {
+														"type": "string"
+													},
+													"stars": {
+														"type": "integer"
+													},
+													"destructionPercentage": {
+														"type": "integer"
+													},
+													"order": {
+														"type": "integer"
+													},
+													"duration": {
+														"type": "integer"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dailywar_clanmembers_datasink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "clan_members_raw.json",
+						"fileSystem": "bronze"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
 			]
 		},
 		{
