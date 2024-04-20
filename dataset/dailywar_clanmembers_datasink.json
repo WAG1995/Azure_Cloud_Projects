@@ -1,0 +1,19 @@
+{
+	"name": "dailywar_clanmembers_datasink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "clan_members_raw.json",
+				"fileSystem": "bronze"
+			}
+		},
+		"schema": {}
+	}
+}
