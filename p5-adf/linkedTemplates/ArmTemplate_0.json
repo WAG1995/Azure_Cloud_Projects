@@ -1034,28 +1034,6 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "bronze to gold",
-						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"notebookPath": "/Shared/p5-bronze_to_gold"
-						},
-						"linkedServiceName": {
-							"referenceName": "p5_coc_databrick_ls",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
 						"name": "clan mem data bronze to silver",
 						"type": "Copy",
 						"dependsOn": [],
@@ -1092,14 +1070,14 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "dailywar_clanmembers_datasink",
+								"referenceName": "clan_members_dataSink",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
+								"referenceName": "clan_mem_bronze_to_silver_dataSink",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -1112,9 +1090,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/p5_coc_databrick_ls')]",
-				"[concat(variables('factoryId'), '/datasets/dailywar_clanmembers_datasink')]",
-				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]"
+				"[concat(variables('factoryId'), '/datasets/clan_members_dataSink')]",
+				"[concat(variables('factoryId'), '/datasets/clan_mem_bronze_to_silver_dataSink')]"
 			]
 		},
 		{
