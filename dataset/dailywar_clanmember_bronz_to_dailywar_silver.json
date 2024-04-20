@@ -1,0 +1,266 @@
+{
+	"name": "dailywar_clanmember_bronz_to_dailywar_silver",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'-clanMembers.json')",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@formatDateTime(utcNow(), 'dd-MM-yyyy')",
+					"type": "Expression"
+				},
+				"fileSystem": "dailywar-silver"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"state": {
+					"type": "string"
+				},
+				"teamSize": {
+					"type": "integer"
+				},
+				"attacksPerMember": {
+					"type": "integer"
+				},
+				"preparationStartTime": {
+					"type": "string"
+				},
+				"startTime": {
+					"type": "string"
+				},
+				"endTime": {
+					"type": "string"
+				},
+				"clan": {
+					"type": "object",
+					"properties": {
+						"tag": {
+							"type": "string"
+						},
+						"name": {
+							"type": "string"
+						},
+						"badgeUrls": {
+							"type": "object",
+							"properties": {
+								"small": {
+									"type": "string"
+								},
+								"large": {
+									"type": "string"
+								},
+								"medium": {
+									"type": "string"
+								}
+							}
+						},
+						"clanLevel": {
+							"type": "integer"
+						},
+						"attacks": {
+							"type": "integer"
+						},
+						"stars": {
+							"type": "integer"
+						},
+						"destructionPercentage": {
+							"type": "number"
+						},
+						"members": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"tag": {
+										"type": "string"
+									},
+									"name": {
+										"type": "string"
+									},
+									"townhallLevel": {
+										"type": "integer"
+									},
+									"mapPosition": {
+										"type": "integer"
+									},
+									"attacks": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"attackerTag": {
+													"type": "string"
+												},
+												"defenderTag": {
+													"type": "string"
+												},
+												"stars": {
+													"type": "integer"
+												},
+												"destructionPercentage": {
+													"type": "integer"
+												},
+												"order": {
+													"type": "integer"
+												},
+												"duration": {
+													"type": "integer"
+												}
+											}
+										}
+									},
+									"opponentAttacks": {
+										"type": "integer"
+									},
+									"bestOpponentAttack": {
+										"type": "object",
+										"properties": {
+											"attackerTag": {
+												"type": "string"
+											},
+											"defenderTag": {
+												"type": "string"
+											},
+											"stars": {
+												"type": "integer"
+											},
+											"destructionPercentage": {
+												"type": "integer"
+											},
+											"order": {
+												"type": "integer"
+											},
+											"duration": {
+												"type": "integer"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"opponent": {
+					"type": "object",
+					"properties": {
+						"tag": {
+							"type": "string"
+						},
+						"name": {
+							"type": "string"
+						},
+						"badgeUrls": {
+							"type": "object",
+							"properties": {
+								"small": {
+									"type": "string"
+								},
+								"large": {
+									"type": "string"
+								},
+								"medium": {
+									"type": "string"
+								}
+							}
+						},
+						"clanLevel": {
+							"type": "integer"
+						},
+						"attacks": {
+							"type": "integer"
+						},
+						"stars": {
+							"type": "integer"
+						},
+						"destructionPercentage": {
+							"type": "number"
+						},
+						"members": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"tag": {
+										"type": "string"
+									},
+									"name": {
+										"type": "string"
+									},
+									"townhallLevel": {
+										"type": "integer"
+									},
+									"mapPosition": {
+										"type": "integer"
+									},
+									"attacks": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"attackerTag": {
+													"type": "string"
+												},
+												"defenderTag": {
+													"type": "string"
+												},
+												"stars": {
+													"type": "integer"
+												},
+												"destructionPercentage": {
+													"type": "integer"
+												},
+												"order": {
+													"type": "integer"
+												},
+												"duration": {
+													"type": "integer"
+												}
+											}
+										}
+									},
+									"opponentAttacks": {
+										"type": "integer"
+									},
+									"bestOpponentAttack": {
+										"type": "object",
+										"properties": {
+											"attackerTag": {
+												"type": "string"
+											},
+											"defenderTag": {
+												"type": "string"
+											},
+											"stars": {
+												"type": "integer"
+											},
+											"destructionPercentage": {
+												"type": "integer"
+											},
+											"order": {
+												"type": "integer"
+											},
+											"duration": {
+												"type": "integer"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
