@@ -481,234 +481,259 @@
 						}
 					},
 					{
-						"name": "Execute vm start-stop pipeline2",
-						"description": "stop vm",
-						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
+						"name": "If Condition1",
+						"type": "IfCondition",
 						"dependsOn": [
 							{
-								"activity": "fetch clan members data",
+								"activity": "warEndTimeObject",
 								"dependencyConditions": [
 									"Succeeded"
 								]
 							}
 						],
-						"policy": {
-							"secureInput": false
-						},
 						"userProperties": [],
 						"typeProperties": {
-							"pipeline": {
-								"referenceName": "vm_start_stop",
-								"type": "PipelineReference"
+							"expression": {
+								"value": "@equals(activity('daily war sink lookup').output.value[0].state, 'warEnded')",
+								"type": "Expression"
 							},
-							"waitOnCompletion": true,
-							"parameters": {}
+							"ifFalseActivities": [
+								{
+									"name": "condition Not Satisfied",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": {
+											"value": "@sub(ticks(variables('endTimeObject')),ticks(utcNow()))",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Execute vm start-stop pipeline2",
+									"description": "stop vm",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "fetch clan members data",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "vm_start_stop",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {}
+									}
+								},
+								{
+									"name": "dailyWar bronze to gold",
+									"type": "DatabricksNotebook",
+									"state": "Inactive",
+									"onInactiveMarkAs": "Succeeded",
+									"dependsOn": [
+										{
+											"activity": "clan mem data bronze to silver",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Shared/p5-dailyWar-bronze-to-gold"
+									},
+									"linkedServiceName": {
+										"referenceName": "p5_coc_databrick_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "rename and bronze to silver",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "dailyWars_dataSink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dailyWarlog_silver_dataSink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "fetch clan members data",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "rename and bronze to silver",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"paginationRules": {
+												"supportRFC5988": "true"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "clan_mem_dataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dailywar_clanmembers_datasink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "clan mem data bronze to silver",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "fetch clan members data",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "dailywar_clanmembers_datasink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
 						}
 					},
 					{
-						"name": "dailyWar bronze to gold",
-						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "clan mem data bronze to silver",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"notebookPath": "/Shared/p5-dailyWar-bronze-to-gold"
-						},
-						"linkedServiceName": {
-							"referenceName": "p5_coc_databrick_ls",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "rename and bronze to silver",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "dailyWars_dataSink",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "dailyWarlog_silver_dataSink",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "fetch clan members data",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "rename and bronze to silver",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "clan_mem_dataset",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "dailywar_clanmembers_datasink",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "clan mem data bronze to silver",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "fetch clan members data",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "dailywar_clanmembers_datasink",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "rename and bronze to silver_copy1",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
+						"name": "daily war sink lookup",
+						"type": "Lookup",
 						"dependsOn": [
 							{
 								"activity": "fetch from coc api",
@@ -737,32 +762,61 @@
 									"type": "JsonReadSettings"
 								}
 							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings",
-									"copyBehavior": "FlattenHierarchy"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
+							"dataset": {
 								"referenceName": "dailyWars_dataSink",
 								"type": "DatasetReference",
 								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "warEndTimeObject",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "warEndTime",
+								"dependencyConditions": [
+									"Succeeded"
+								]
 							}
 						],
-						"outputs": [
-							{
-								"referenceName": "war_not_ended_data",
-								"type": "DatasetReference",
-								"parameters": {}
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "endTimeObject",
+							"value": {
+								"value": "@utcNow(formatDateTime(variables('warEndTime'), 'yyyyMMddTHHmmss.fffZ'))\n\n",
+								"type": "Expression"
 							}
-						]
+						}
+					},
+					{
+						"name": "warEndTime",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "daily war sink lookup",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "warEndTime",
+							"value": {
+								"value": "@activity('daily war sink lookup').output.value[0].endTime",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -770,6 +824,12 @@
 				},
 				"variables": {
 					"warState": {
+						"type": "String"
+					},
+					"warEndTime": {
+						"type": "String"
+					},
+					"endTimeObject": {
 						"type": "String"
 					}
 				},
@@ -783,8 +843,7 @@
 				"[concat(variables('factoryId'), '/datasets/dailyWarlog_silver_dataSink')]",
 				"[concat(variables('factoryId'), '/datasets/clan_mem_dataset')]",
 				"[concat(variables('factoryId'), '/datasets/dailywar_clanmembers_datasink')]",
-				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]",
-				"[concat(variables('factoryId'), '/datasets/war_not_ended_data')]"
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]"
 			]
 		},
 		{
@@ -1167,70 +1226,15 @@
 								}
 							},
 							"sink": {
-								"type": "ParquetSink",
+								"type": "JsonSink",
 								"storeSettings": {
 									"type": "AzureBlobFSWriteSettings"
 								},
 								"formatSettings": {
-									"type": "ParquetWriteSettings"
+									"type": "JsonWriteSettings"
 								}
 							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"path": "$['state']"
-										},
-										"sink": {
-											"name": "state"
-										}
-									},
-									{
-										"source": {
-											"path": "$['teamSize']"
-										},
-										"sink": {
-											"name": "teamSize"
-										}
-									},
-									{
-										"source": {
-											"path": "$['attacksPerMember']"
-										},
-										"sink": {
-											"name": "attacksPerMember"
-										}
-									},
-									{
-										"source": {
-											"path": "$['preparationStartTime']"
-										},
-										"sink": {
-											"name": "preparationStartTime"
-										}
-									},
-									{
-										"source": {
-											"path": "$['startTime']"
-										},
-										"sink": {
-											"name": "startTime"
-										}
-									},
-									{
-										"source": {
-											"path": "$['endTime']"
-										},
-										"sink": {
-											"name": "endTime"
-										}
-									}
-								],
-								"collectionReference": "",
-								"mapComplexValuesToString": true
-							}
+							"enableStaging": false
 						},
 						"inputs": [
 							{
@@ -1241,7 +1245,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "war_not_ended_data",
+								"referenceName": "war_notEnded_json",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -1252,7 +1256,7 @@
 						"type": "IfCondition",
 						"dependsOn": [
 							{
-								"activity": "daily war sink lookup",
+								"activity": "clean the date time string - warEndTimeObject2",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1261,9 +1265,23 @@
 						"userProperties": [],
 						"typeProperties": {
 							"expression": {
-								"value": "@equals(activity('daily war sink lookup').output.firstRow.state, 'inWar')",
+								"value": "@equals(activity('daily war sink lookup').output.value[0].state, 'warEnded')",
 								"type": "Expression"
 							},
+							"ifFalseActivities": [
+								{
+									"name": "condition Not Satisfied",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": {
+											"value": "@div(sub(ticks(utcNow()),ticks(variables('endTimeObject2'))), 10000000)",
+											"type": "Expression"
+										}
+									}
+								}
+							],
 							"ifTrueActivities": [
 								{
 									"name": "condition Satisfied",
@@ -1271,7 +1289,7 @@
 									"dependsOn": [],
 									"userProperties": [],
 									"typeProperties": {
-										"waitTimeInSeconds": 30
+										"waitTimeInSeconds": 10
 									}
 								}
 							]
@@ -1298,33 +1316,117 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "ParquetSource",
+								"type": "JsonSource",
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
 									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
-									"type": "ParquetReadSettings"
+									"type": "JsonReadSettings"
 								}
 							},
 							"dataset": {
-								"referenceName": "war_not_ended_data",
+								"referenceName": "war_notEnded_json",
 								"type": "DatasetReference",
 								"parameters": {}
 							},
-							"firstRowOnly": true
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "convert to date time - warEndTimeObject1",
+						"description": "",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "warEndTime",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "endTimeObject",
+							"value": {
+								"value": "@{concat(substring(variables('warEndTime'), 0, 4), '-', \n    substring(variables('warEndTime'), 4, 2), '-', \n    substring(variables('warEndTime'), 6, 2), 'T', \n    substring(variables('warEndTime'), 9, 2), ':', \n    substring(variables('warEndTime'), 11, 2), ':', \n    substring(variables('warEndTime'), 13, 2), '.', \n    substring(variables('warEndTime'), 16, 3), 'Z')}\n\n\n\n\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "warEndTime",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "daily war sink lookup",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "warEndTime",
+							"value": {
+								"value": "@activity('daily war sink lookup').output.value[0].endTime",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "clean the date time string - warEndTimeObject2",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "convert to date time - warEndTimeObject1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "endTimeObject2",
+							"value": {
+								"value": "@substring(variables('endTimeObject'), 0, add(indexOf(variables('endTimeObject'), 'Z'), 1))\n\n\n\n\n\n\n\n",
+								"type": "Expression"
+							}
 						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"variables": {
+					"warEndTime": {
+						"type": "String"
+					},
+					"endTimeObject": {
+						"type": "String"
+					},
+					"endTimeObject2": {
+						"type": "String"
+					}
+				},
 				"annotations": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/dailyWars_dataSink')]",
-				"[concat(variables('factoryId'), '/datasets/war_not_ended_data')]"
+				"[concat(variables('factoryId'), '/datasets/war_notEnded_json')]"
 			]
 		},
 		{
@@ -2417,6 +2519,34 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/war_notEnded_json')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.json')",
+							"type": "Expression"
+						},
+						"folderPath": "checkWarStatus",
+						"fileSystem": "dailywar-silver"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/war_not_ended_data')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2434,7 +2564,7 @@
 							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.parquet')",
 							"type": "Expression"
 						},
-						"folderPath": "warNotEnded",
+						"folderPath": "checkWarStatus",
 						"fileSystem": "dailywar-silver"
 					},
 					"compressionCodec": "snappy"
