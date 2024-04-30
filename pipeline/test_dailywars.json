@@ -53,8 +53,7 @@
 									"path": "$['state']"
 								},
 								"sink": {
-									"name": "state",
-									"type": "String"
+									"name": "state"
 								}
 							},
 							{
@@ -62,8 +61,7 @@
 									"path": "$['teamSize']"
 								},
 								"sink": {
-									"name": "teamSize",
-									"type": "Int32"
+									"name": "teamSize"
 								}
 							},
 							{
@@ -71,8 +69,7 @@
 									"path": "$['attacksPerMember']"
 								},
 								"sink": {
-									"name": "attacksPerMember",
-									"type": "Int32"
+									"name": "attacksPerMember"
 								}
 							},
 							{
@@ -80,8 +77,7 @@
 									"path": "$['preparationStartTime']"
 								},
 								"sink": {
-									"name": "preparationStartTime",
-									"type": "String"
+									"name": "preparationStartTime"
 								}
 							},
 							{
@@ -89,8 +85,7 @@
 									"path": "$['startTime']"
 								},
 								"sink": {
-									"name": "startTime",
-									"type": "String"
+									"name": "startTime"
 								}
 							},
 							{
@@ -98,17 +93,17 @@
 									"path": "$['endTime']"
 								},
 								"sink": {
-									"name": "endTime",
-									"type": "String"
+									"name": "endTime"
 								}
 							}
 						],
-						"mapComplexValuesToString": false
+						"collectionReference": "",
+						"mapComplexValuesToString": true
 					}
 				},
 				"inputs": [
 					{
-						"referenceName": "clan_members_dataSink",
+						"referenceName": "dailyWars_dataSink",
 						"type": "DatasetReference"
 					}
 				],
@@ -133,7 +128,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('daily war sink lookup').output.firstRow.teamSize, 'inWar')",
+						"value": "@equals(activity('daily war sink lookup').output.firstRow.state, 'inWar')",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
@@ -188,11 +183,6 @@
 				}
 			}
 		],
-		"variables": {
-			"warState": {
-				"type": "String"
-			}
-		},
 		"annotations": []
 	}
 }

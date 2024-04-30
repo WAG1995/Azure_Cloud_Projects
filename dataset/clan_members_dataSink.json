@@ -14,6 +14,114 @@
 				"fileSystem": "bronze"
 			}
 		},
-		"schema": {}
+		"schema": {
+			"type": "object",
+			"properties": {
+				"items": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"tag": {
+								"type": "string"
+							},
+							"name": {
+								"type": "string"
+							},
+							"role": {
+								"type": "string"
+							},
+							"townHallLevel": {
+								"type": "integer"
+							},
+							"expLevel": {
+								"type": "integer"
+							},
+							"league": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"name": {
+										"type": "string"
+									},
+									"iconUrls": {
+										"type": "object",
+										"properties": {
+											"small": {
+												"type": "string"
+											},
+											"tiny": {
+												"type": "string"
+											},
+											"medium": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							},
+							"trophies": {
+								"type": "integer"
+							},
+							"builderBaseTrophies": {
+								"type": "integer"
+							},
+							"clanRank": {
+								"type": "integer"
+							},
+							"previousClanRank": {
+								"type": "integer"
+							},
+							"donations": {
+								"type": "integer"
+							},
+							"donationsReceived": {
+								"type": "integer"
+							},
+							"playerHouse": {
+								"type": "object",
+								"properties": {
+									"elements": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"type": {
+													"type": "string"
+												},
+												"id": {
+													"type": "integer"
+												}
+											}
+										}
+									}
+								}
+							},
+							"builderBaseLeague": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"name": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				},
+				"paging": {
+					"type": "object",
+					"properties": {
+						"cursors": {
+							"type": "object"
+						}
+					}
+				}
+			}
+		}
 	}
 }
