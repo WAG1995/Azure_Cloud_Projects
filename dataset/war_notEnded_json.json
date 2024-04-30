@@ -1,24 +1,23 @@
 {
-	"name": "war_not_ended_data",
+	"name": "war_notEnded_json",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
-		"type": "Parquet",
+		"type": "Json",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": {
-					"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.parquet')",
+					"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.json')",
 					"type": "Expression"
 				},
 				"folderPath": "checkWarStatus",
 				"fileSystem": "dailywar-silver"
-			},
-			"compressionCodec": "snappy"
+			}
 		},
-		"schema": []
+		"schema": {}
 	}
 }

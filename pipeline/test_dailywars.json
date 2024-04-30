@@ -36,70 +36,15 @@
 						}
 					},
 					"sink": {
-						"type": "ParquetSink",
+						"type": "JsonSink",
 						"storeSettings": {
 							"type": "AzureBlobFSWriteSettings"
 						},
 						"formatSettings": {
-							"type": "ParquetWriteSettings"
+							"type": "JsonWriteSettings"
 						}
 					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"path": "$['state']"
-								},
-								"sink": {
-									"name": "state"
-								}
-							},
-							{
-								"source": {
-									"path": "$['teamSize']"
-								},
-								"sink": {
-									"name": "teamSize"
-								}
-							},
-							{
-								"source": {
-									"path": "$['attacksPerMember']"
-								},
-								"sink": {
-									"name": "attacksPerMember"
-								}
-							},
-							{
-								"source": {
-									"path": "$['preparationStartTime']"
-								},
-								"sink": {
-									"name": "preparationStartTime"
-								}
-							},
-							{
-								"source": {
-									"path": "$['startTime']"
-								},
-								"sink": {
-									"name": "startTime"
-								}
-							},
-							{
-								"source": {
-									"path": "$['endTime']"
-								},
-								"sink": {
-									"name": "endTime"
-								}
-							}
-						],
-						"collectionReference": "",
-						"mapComplexValuesToString": true
-					}
+					"enableStaging": false
 				},
 				"inputs": [
 					{
@@ -109,7 +54,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "war_not_ended_data",
+						"referenceName": "war_notEnded_json",
 						"type": "DatasetReference"
 					}
 				]
@@ -128,9 +73,20 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('daily war sink lookup').output.firstRow.state, 'inWar')",
+						"value": "@equals(activity('daily war sink lookup').output.value[0].state, 'inWar')",
 						"type": "Expression"
 					},
+					"ifFalseActivities": [
+						{
+							"name": "condition Not Satisfied",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
+							}
+						}
+					],
 					"ifTrueActivities": [
 						{
 							"name": "condition Satisfied",
@@ -165,21 +121,21 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "ParquetSource",
+						"type": "JsonSource",
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
-							"type": "ParquetReadSettings"
+							"type": "JsonReadSettings"
 						}
 					},
 					"dataset": {
-						"referenceName": "war_not_ended_data",
+						"referenceName": "war_notEnded_json",
 						"type": "DatasetReference"
 					},
-					"firstRowOnly": true
+					"firstRowOnly": false
 				}
 			}
 		],
