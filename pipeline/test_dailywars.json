@@ -38,16 +38,7 @@
 					"sink": {
 						"type": "ParquetSink",
 						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings",
-							"metadata": [
-								{
-									"name": "warState",
-									"value": {
-										"value": "$['state']",
-										"type": "Expression"
-									}
-								}
-							]
+							"type": "AzureBlobFSWriteSettings"
 						},
 						"formatSettings": {
 							"type": "ParquetWriteSettings"
@@ -117,7 +108,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "dailyWars_dataSink",
+						"referenceName": "clan_members_dataSink",
 						"type": "DatasetReference"
 					}
 				],
@@ -133,7 +124,7 @@
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "test daily wars",
+						"activity": "daily war sink lookup",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -142,7 +133,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('test daily wars').output.sink.metadata.warState, 'inWar')",
+						"value": "@equals(activity('daily war sink lookup').output.firstRow.teamSize, 'inWar')",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
@@ -156,6 +147,44 @@
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "daily war sink lookup",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "test daily wars",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "war_not_ended_data",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": true
 				}
 			}
 		],

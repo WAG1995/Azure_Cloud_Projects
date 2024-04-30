@@ -10,7 +10,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.parquet')",
+				"fileName": {
+					"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.parquet')",
+					"type": "Expression"
+				},
 				"folderPath": "warNotEnded",
 				"fileSystem": "dailywar-silver"
 			},
