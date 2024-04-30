@@ -482,7 +482,7 @@
 						"type": "IfCondition",
 						"dependsOn": [
 							{
-								"activity": "warEndTimeObject",
+								"activity": "clean the date time string - warEndTimeObject2",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -496,15 +496,363 @@
 							},
 							"ifFalseActivities": [
 								{
-									"name": "condition Not Satisfied",
+									"name": "Execute vm start-stop pipeline2_copy1",
+									"description": "stop vm",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "fetch clan members data_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "vm_start_stop",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {}
+									}
+								},
+								{
+									"name": "dailyWar bronze to gold_copy1",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "clan mem data bronze to silver_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Shared/p5-dailyWar-bronze-to-gold"
+									},
+									"linkedServiceName": {
+										"referenceName": "p5_coc_databrick_ls",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "rename and bronze to silver_copy1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "fetch from coc api_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "dailyWars_dataSink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dailyWarlog_silver_dataSink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "fetch clan members data_copy1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "rename and bronze to silver_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"paginationRules": {
+												"supportRFC5988": "true"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "clan_mem_dataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dailywar_clanmembers_datasink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "clan mem data bronze to silver_copy1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "fetch clan members data_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "dailywar_clanmembers_datasink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dailywar_clanmember_bronz_to_dailywar_silver",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "fetch from coc api_copy1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Wait1_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"paginationRules": {
+												"supportRFC5988": "true"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "dailyWars_dataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "dailyWars_dataSink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "Execute vm start-stop pipeline_copy1",
+									"description": "start vm",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "wait till the war ends",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "vm_start_stop",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"SubscriptionId": "cdeaf6c7-1fea-4d82-ad58-0b5a97a59742",
+											"ResourceGroupName": "P5_COC",
+											"Region": "WestEurope",
+											"VmName": "shir-vm"
+										}
+									}
+								},
+								{
+									"name": "Wait1_copy1",
+									"description": "5 min for the shir in vm to connect",
 									"type": "Wait",
-									"dependsOn": [],
+									"dependsOn": [
+										{
+											"activity": "Execute vm start-stop pipeline_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 300
+									}
+								},
+								{
+									"name": "wait till the war ends",
+									"type": "Wait",
+									"dependsOn": [
+										{
+											"activity": "Execute vm start-stop pipeline2_copy1_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
 									"userProperties": [],
 									"typeProperties": {
 										"waitTimeInSeconds": {
-											"value": "@sub(ticks(variables('endTimeObject')),ticks(utcNow()))",
+											"value": "@div(sub(ticks(variables('endTimeObject2')),ticks(utcNow())), 10000000)",
 											"type": "Expression"
 										}
+									}
+								},
+								{
+									"name": "Execute vm start-stop pipeline2_copy1_copy1",
+									"description": "stop vm",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "vm_start_stop",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {}
 									}
 								}
 							],
@@ -537,8 +885,6 @@
 								{
 									"name": "dailyWar bronze to gold",
 									"type": "DatabricksNotebook",
-									"state": "Inactive",
-									"onInactiveMarkAs": "Succeeded",
 									"dependsOn": [
 										{
 											"activity": "clan mem data bronze to silver",
@@ -768,30 +1114,6 @@
 						}
 					},
 					{
-						"name": "warEndTimeObject",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "warEndTime",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "endTimeObject",
-							"value": {
-								"value": "@utcNow(formatDateTime(variables('warEndTime'), 'yyyyMMddTHHmmss.fffZ'))\n\n",
-								"type": "Expression"
-							}
-						}
-					},
-					{
 						"name": "warEndTime",
 						"type": "SetVariable",
 						"dependsOn": [
@@ -814,6 +1136,55 @@
 								"type": "Expression"
 							}
 						}
+					},
+					{
+						"name": "convert to date time - warEndTimeObject1",
+						"description": "",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "warEndTime",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "endTimeObject",
+							"value": {
+								"value": "@{concat(substring(variables('warEndTime'), 0, 4), '-', \n    substring(variables('warEndTime'), 4, 2), '-', \n    substring(variables('warEndTime'), 6, 2), 'T', \n    substring(variables('warEndTime'), 9, 2), ':', \n    substring(variables('warEndTime'), 11, 2), ':', \n    substring(variables('warEndTime'), 13, 2), '.', \n    substring(variables('warEndTime'), 16, 3), 'Z')}\n\n\n\n\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "clean the date time string - warEndTimeObject2",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "convert to date time - warEndTimeObject1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "endTimeObject2",
+							"value": {
+								"value": "@substring(variables('endTimeObject'), 0, add(indexOf(variables('endTimeObject'), 'Z'), 1))\n\n\n\n\n\n\n\n",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -827,6 +1198,9 @@
 						"type": "String"
 					},
 					"endTimeObject": {
+						"type": "String"
+					},
+					"endTimeObject2": {
 						"type": "String"
 					}
 				},
