@@ -100,7 +100,7 @@
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "daily war sink lookup",
+						"activity": "warEndTimeObject",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -120,7 +120,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"waitTimeInSeconds": {
-									"value": "@activity('daily war sink lookup').output.value[0].endTime",
+									"value": "@sub(ticks(variables('endTimeObject')),ticks(utcNow()))",
 									"type": "Expression"
 								}
 							}
@@ -131,8 +131,6 @@
 							"name": "Execute vm start-stop pipeline2",
 							"description": "stop vm",
 							"type": "ExecutePipeline",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "fetch clan members data",
@@ -185,8 +183,6 @@
 						{
 							"name": "rename and bronze to silver",
 							"type": "Copy",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
@@ -235,8 +231,6 @@
 						{
 							"name": "fetch clan members data",
 							"type": "Copy",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "rename and bronze to silver",
@@ -290,8 +284,6 @@
 						{
 							"name": "clan mem data bronze to silver",
 							"type": "Copy",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "fetch clan members data",
@@ -384,10 +376,64 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "warEndTimeObject",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "warEndTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "endTimeObject",
+					"value": {
+						"value": "@utcNow(formatDateTime(variables('warEndTime'), 'yyyyMMddTHHmmss.fffZ'))\n\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "warEndTime",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "daily war sink lookup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "warEndTime",
+					"value": {
+						"value": "@activity('daily war sink lookup').output.value[0].endTime",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
 			"warState": {
+				"type": "String"
+			},
+			"warEndTime": {
+				"type": "String"
+			},
+			"endTimeObject": {
 				"type": "String"
 			}
 		},

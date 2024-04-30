@@ -64,7 +64,7 @@
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "daily war sink lookup",
+						"activity": "clean the date time string - warEndTimeObject2",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -73,7 +73,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('daily war sink lookup').output.value[0].state, 'inWar')",
+						"value": "@equals(activity('daily war sink lookup').output.value[0].state, 'warEnded')",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
@@ -83,7 +83,10 @@
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"waitTimeInSeconds": 5
+								"waitTimeInSeconds": {
+									"value": "@div(sub(ticks(utcNow()),ticks(variables('endTimeObject2'))), 10000000)",
+									"type": "Expression"
+								}
 							}
 						}
 					],
@@ -94,7 +97,7 @@
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"waitTimeInSeconds": 30
+								"waitTimeInSeconds": 10
 							}
 						}
 					]
@@ -137,8 +140,92 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "convert to date time - warEndTimeObject1",
+				"description": "",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "warEndTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "endTimeObject",
+					"value": {
+						"value": "@{concat(substring(variables('warEndTime'), 0, 4), '-', \n    substring(variables('warEndTime'), 4, 2), '-', \n    substring(variables('warEndTime'), 6, 2), 'T', \n    substring(variables('warEndTime'), 9, 2), ':', \n    substring(variables('warEndTime'), 11, 2), ':', \n    substring(variables('warEndTime'), 13, 2), '.', \n    substring(variables('warEndTime'), 16, 3), 'Z')}\n\n\n\n\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "warEndTime",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "daily war sink lookup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "warEndTime",
+					"value": {
+						"value": "@activity('daily war sink lookup').output.value[0].endTime",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "clean the date time string - warEndTimeObject2",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "convert to date time - warEndTimeObject1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "endTimeObject2",
+					"value": {
+						"value": "@substring(variables('endTimeObject'), 0, add(indexOf(variables('endTimeObject'), 'Z'), 1))\n\n\n\n\n\n\n\n",
+						"type": "Expression"
+					}
+				}
 			}
 		],
+		"variables": {
+			"warEndTime": {
+				"type": "String"
+			},
+			"endTimeObject": {
+				"type": "String"
+			},
+			"endTimeObject2": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }
