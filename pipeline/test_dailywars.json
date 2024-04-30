@@ -133,7 +133,7 @@
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "test daily wars ",
+						"activity": "test daily wars",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -142,7 +142,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('test daily wars ').output.sink.metadata.warState, 'inWar')",
+						"value": "@equals(activity('test daily wars').output.sink.metadata.warState, 'inWar')",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
