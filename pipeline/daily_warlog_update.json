@@ -360,7 +360,8 @@
 					"sink": {
 						"type": "ParquetSink",
 						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings"
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "FlattenHierarchy"
 						},
 						"formatSettings": {
 							"type": "ParquetWriteSettings"
@@ -382,6 +383,11 @@
 				]
 			}
 		],
+		"variables": {
+			"warState": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }
