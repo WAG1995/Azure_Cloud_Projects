@@ -705,27 +705,10 @@
 						]
 					},
 					{
-						"name": "If Condition1",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Get Metadata1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@activity('fetch from coc api').output.state",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Get Metadata1",
-						"type": "GetMetadata",
+						"name": "rename and bronze to silver_copy1",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "fetch from coc api",
@@ -743,27 +726,52 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"dataset": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "FlattenHierarchy"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
 								"referenceName": "dailyWars_dataSink",
 								"type": "DatasetReference",
 								"parameters": {}
-							},
-							"fieldList": [
-								"itemName"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "JsonReadSettings"
 							}
-						}
+						],
+						"outputs": [
+							{
+								"referenceName": "war_not_ended_data",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"warState": {
+						"type": "String"
+					}
 				},
 				"annotations": []
 			},
@@ -775,7 +783,8 @@
 				"[concat(variables('factoryId'), '/datasets/dailyWarlog_silver_dataSink')]",
 				"[concat(variables('factoryId'), '/datasets/clan_mem_dataset')]",
 				"[concat(variables('factoryId'), '/datasets/dailywar_clanmembers_datasink')]",
-				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]"
+				"[concat(variables('factoryId'), '/datasets/dailywar_clanmember_bronz_to_dailywar_silver')]",
+				"[concat(variables('factoryId'), '/datasets/war_not_ended_data')]"
 			]
 		},
 		{
@@ -1116,6 +1125,216 @@
 				"[concat(variables('factoryId'), '/datasets/clan_mem_dataset')]",
 				"[concat(variables('factoryId'), '/datasets/clan_members_dataSink')]",
 				"[concat(variables('factoryId'), '/datasets/clan_mem_bronze_to_silver_dataSink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/test_dailywars')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "test daily wars",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "bronze/dailyWar_raw/dailyWar_raw.json"
+							},
+							{
+								"name": "Destination",
+								"value": "dailywar-silver/warNotEnded/@{concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.parquet')}"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "$['state']"
+										},
+										"sink": {
+											"name": "state",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['teamSize']"
+										},
+										"sink": {
+											"name": "teamSize",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"path": "$['attacksPerMember']"
+										},
+										"sink": {
+											"name": "attacksPerMember",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"path": "$['preparationStartTime']"
+										},
+										"sink": {
+											"name": "preparationStartTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['startTime']"
+										},
+										"sink": {
+											"name": "startTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['endTime']"
+										},
+										"sink": {
+											"name": "endTime",
+											"type": "String"
+										}
+									}
+								],
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "clan_members_dataSink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "war_not_ended_data",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "daily war sink lookup",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(activity('daily war sink lookup').output.firstRow.teamSize, 'inWar')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "condition Satisfied",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 30
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "daily war sink lookup",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "test daily wars",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "war_not_ended_data",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": true
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"warState": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/clan_members_dataSink')]",
+				"[concat(variables('factoryId'), '/datasets/war_not_ended_data')]"
 			]
 		},
 		{
@@ -2094,6 +2313,35 @@
 					}
 				},
 				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/war_not_ended_data')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.parquet')",
+							"type": "Expression"
+						},
+						"folderPath": "warNotEnded",
+						"fileSystem": "dailywar-silver"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
