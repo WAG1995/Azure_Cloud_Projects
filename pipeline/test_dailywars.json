@@ -1,0 +1,169 @@
+{
+	"name": "test_dailywars",
+	"properties": {
+		"activities": [
+			{
+				"name": "test daily wars",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "bronze/dailyWar_raw/dailyWar_raw.json"
+					},
+					{
+						"name": "Destination",
+						"value": "dailywar-silver/warNotEnded/@{concat(formatDateTime(utcNow(), 'dd-MM-yyyy'),'.parquet')}"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"metadata": [
+								{
+									"name": "warState",
+									"value": {
+										"value": "$['state']",
+										"type": "Expression"
+									}
+								}
+							]
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['state']"
+								},
+								"sink": {
+									"name": "state",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['teamSize']"
+								},
+								"sink": {
+									"name": "teamSize",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "$['attacksPerMember']"
+								},
+								"sink": {
+									"name": "attacksPerMember",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "$['preparationStartTime']"
+								},
+								"sink": {
+									"name": "preparationStartTime",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['startTime']"
+								},
+								"sink": {
+									"name": "startTime",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['endTime']"
+								},
+								"sink": {
+									"name": "endTime",
+									"type": "String"
+								}
+							}
+						],
+						"mapComplexValuesToString": false
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "dailyWars_dataSink",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "war_not_ended_data",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "test daily wars ",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('test daily wars ').output.sink.metadata.warState, 'inWar')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "condition Satisfied",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 30
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"warState": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
