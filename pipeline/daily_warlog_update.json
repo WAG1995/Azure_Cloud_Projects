@@ -315,14 +315,7 @@
 			{
 				"name": "If Condition1",
 				"type": "IfCondition",
-				"dependsOn": [
-					{
-						"activity": "Get Metadata1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
@@ -332,8 +325,10 @@
 				}
 			},
 			{
-				"name": "Get Metadata1",
-				"type": "GetMetadata",
+				"name": "rename and bronze to silver_copy1",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "fetch from coc api",
@@ -351,22 +346,40 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataset": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
 						"referenceName": "dailyWars_dataSink",
 						"type": "DatasetReference"
-					},
-					"fieldList": [
-						"itemName"
-					],
-					"storeSettings": {
-						"type": "AzureBlobFSReadSettings",
-						"recursive": true,
-						"enablePartitionDiscovery": false
-					},
-					"formatSettings": {
-						"type": "JsonReadSettings"
 					}
-				}
+				],
+				"outputs": [
+					{
+						"referenceName": "war_not_ended_data",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": []

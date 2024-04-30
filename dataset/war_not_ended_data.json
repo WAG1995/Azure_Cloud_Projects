@@ -1,0 +1,21 @@
+{
+	"name": "war_not_ended_data",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "1.parq",
+				"folderPath": "warNotEnded",
+				"fileSystem": "dailywar-silver"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
