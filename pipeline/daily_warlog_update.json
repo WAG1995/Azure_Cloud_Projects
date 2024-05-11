@@ -718,7 +718,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "daily war sink lookup",
+						"activity": "checkWarStart",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -784,6 +784,51 @@
 						"value": "@substring(variables('endTimeObject'), 0, add(indexOf(variables('endTimeObject'), 'Z'), 1))\n\n\n\n\n\n\n\n",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "checkWarStart",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "daily war sink lookup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@or(equals(activity('daily war sink lookup').output.value[0].state, 'warNotStarted'), equals(activity('daily war sink lookup').output.value[0].state, 'notInWar'))\n\n",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Wait2",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "War Not Started",
+							"type": "Fail",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "War not Started. Pipeline Stopped",
+								"errorCode": {
+									"value": "@activity('daily war sink lookup').output.value[0].state",
+									"type": "Expression"
+								}
+							}
+						}
+					]
 				}
 			}
 		],
