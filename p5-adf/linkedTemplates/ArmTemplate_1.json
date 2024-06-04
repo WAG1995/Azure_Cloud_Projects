@@ -462,7 +462,7 @@
 					},
 					{
 						"name": "Wait1",
-						"description": "5 min for the shir in vm to connect",
+						"description": "6 min for the shir in vm to connect",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -474,7 +474,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 300
+							"waitTimeInSeconds": 360
 						}
 					},
 					{
@@ -1589,6 +1589,44 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dailywar_alternateDay_trigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "daily_warlog_update",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 2,
+						"startTime": "2024-05-12T19:00:00",
+						"timeZone": "GMT Standard Time",
+						"schedule": {
+							"minutes": [
+								1
+							],
+							"hours": [
+								19
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/daily_warlog_update')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/weekly_mon')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -1628,45 +1666,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/p5-coc-capital-wars')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dailywar_alternateDay_trigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "daily_warlog_update",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 2,
-						"startTime": "2024-05-12T19:00:00",
-						"endTime": "2024-06-01T19:00:00",
-						"timeZone": "GMT Standard Time",
-						"schedule": {
-							"minutes": [
-								1
-							],
-							"hours": [
-								19
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/daily_warlog_update')]"
 			]
 		}
 	]
