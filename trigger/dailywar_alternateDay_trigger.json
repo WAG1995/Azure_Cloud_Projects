@@ -17,7 +17,6 @@
 				"frequency": "Day",
 				"interval": 2,
 				"startTime": "2024-05-12T19:00:00",
-				"endTime": "2024-06-01T19:00:00",
 				"timeZone": "GMT Standard Time",
 				"schedule": {
 					"minutes": [
