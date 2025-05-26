@@ -462,7 +462,7 @@
 					},
 					{
 						"name": "Wait1",
-						"description": "6 min for the shir in vm to connect",
+						"description": "15 min for the shir in vm to connect",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -474,7 +474,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 360
+							"waitTimeInSeconds": 900
 						}
 					},
 					{
