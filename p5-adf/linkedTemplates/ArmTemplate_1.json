@@ -1633,7 +1633,7 @@
 			"properties": {
 				"description": "get capital wars details",
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipelines": [
 					{
 						"pipelineReference": {
